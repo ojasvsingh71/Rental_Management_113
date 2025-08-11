@@ -53,26 +53,26 @@ const Pagination: React.FC<PaginationProps> = ({
   if (totalPages <= 1) return null;
 
   return (
-    <div className="flex items-center justify-between px-6 py-3 bg-white border-t border-gray-200">
-      <div className="flex items-center text-sm text-gray-700">
+    <div className="flex flex-col sm:flex-row items-center justify-between px-4 md:px-6 py-3 bg-white border-t border-gray-200 gap-4">
+      <div className="flex items-center text-sm text-gray-700 order-2 sm:order-1">
         Showing {startIndex + 1} to {endIndex} of {totalItems} results
       </div>
       
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-2 order-1 sm:order-2">
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={!canGoPrev}
-          className={`inline-flex items-center px-3 py-2 text-sm rounded-md ${
+          className={`inline-flex items-center px-2 md:px-3 py-2 text-sm rounded-md ${
             canGoPrev
               ? 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
               : 'text-gray-300 bg-gray-100 border border-gray-200 cursor-not-allowed'
           }`}
         >
-          <ChevronLeft className="h-4 w-4 mr-1" />
-          Previous
+          <ChevronLeft className="h-4 w-4 md:mr-1" />
+          <span className="hidden md:inline">Previous</span>
         </button>
 
-        <div className="hidden sm:flex space-x-1">
+        <div className="hidden md:flex space-x-1">
           {getVisiblePages().map((page, index) => (
             <button
               key={index}
@@ -94,14 +94,14 @@ const Pagination: React.FC<PaginationProps> = ({
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={!canGoNext}
-          className={`inline-flex items-center px-3 py-2 text-sm rounded-md ${
+          className={`inline-flex items-center px-2 md:px-3 py-2 text-sm rounded-md ${
             canGoNext
               ? 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
               : 'text-gray-300 bg-gray-100 border border-gray-200 cursor-not-allowed'
           }`}
         >
-          Next
-          <ChevronRight className="h-4 w-4 ml-1" />
+          <span className="hidden md:inline">Next</span>
+          <ChevronRight className="h-4 w-4 md:ml-1" />
         </button>
       </div>
     </div>

@@ -1,14 +1,15 @@
 import React from 'react';
-import { Star } from 'lucide-react';
+import { Star, Trash2 } from 'lucide-react';
 import { Product } from '../../types';
 
 interface ProductCardProps {
   product: Product;
   onEdit?: (product: Product) => void;
   onViewDetails?: (product: Product) => void;
+  onDelete?: (product: Product) => void;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product, onEdit, onViewDetails }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product, onEdit, onViewDetails, onDelete }) => {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
       <div className="relative">
@@ -75,18 +76,27 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onEdit, onViewDetail
           </div>
         </div>
         
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <button 
             onClick={() => onEdit?.(product)}
-            className="flex-1 bg-blue-50 text-blue-600 py-2 rounded-lg text-sm font-medium hover:bg-blue-100 transition-colors"
+            className="flex-1 min-w-0 bg-blue-50 text-blue-600 py-2 px-3 rounded-lg text-sm font-medium hover:bg-blue-100 transition-colors"
           >
             Edit
           </button>
           <button 
             onClick={() => onViewDetails?.(product)}
-            className="flex-1 bg-green-50 text-green-600 py-2 rounded-lg text-sm font-medium hover:bg-green-100 transition-colors"
+            className="flex-1 min-w-0 bg-green-50 text-green-600 py-2 px-3 rounded-lg text-sm font-medium hover:bg-green-100 transition-colors"
           >
-            View Details
+            Details
+          </button>
+          {onDelete && (
+            <button 
+              onClick={() => onDelete(product)}
+              className="bg-red-50 text-red-600 p-2 rounded-lg hover:bg-red-100 transition-colors"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          )}
           </button>
         </div>
       </div>

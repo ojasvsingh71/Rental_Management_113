@@ -8,16 +8,25 @@ export interface StatCard {
   trend: 'up' | 'down';
 }
 
-export interface Order {
+export interface Rental {
   id: string;
-  customer: string;
-  product: string;
-  status: 'Active' | 'Overdue' | 'Returning' | 'Confirmed';
-  amount: string;
-  due: string;
-  duration: string;
-  location: string;
-  phone: string;
+  orderReference?: string;
+  customerId: string;
+  productId: string;
+  startDate: string;
+  endDate: string;
+  status: 'QUOTATION' | 'CONFIRMED' | 'ACTIVE' | 'COMPLETED' | 'CANCELLED';
+  createdAt: string;
+  updatedAt: string;
+  customer?: {
+    id: string;
+    name: string;
+    email: string;
+  };
+  product?: {
+    id: string;
+    name: string;
+  };
 }
 
 export interface Product {

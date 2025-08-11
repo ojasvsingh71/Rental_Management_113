@@ -11,7 +11,7 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange, onLogout, sidebarItems }) => {
   return (
-    <div className="w-64 bg-white shadow-lg">
+    <div className="w-64 bg-white shadow-lg flex flex-col h-full">
       <div className="p-6 border-b">
         <div className="flex items-center">
           <Leaf className="h-8 w-8 text-green-600 mr-3" />
@@ -22,7 +22,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange, onLogout, sid
         </div>
       </div>
       
-      <nav className="mt-6">
+      <nav className="mt-6 flex-1 overflow-y-auto">
         {sidebarItems.map((item) => {
           const IconComponent = item.icon;
           return (
@@ -42,7 +42,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange, onLogout, sid
         })}
       </nav>
       
-      <div className="absolute bottom-0 w-64 p-6">
+      <div className="p-6 border-t mt-auto">
         <button
           onClick={onLogout}
           className="flex items-center text-gray-600 hover:text-red-600 transition-colors"
