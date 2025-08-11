@@ -2,7 +2,7 @@
 
 A full-featured rental management system with **role-based portals** for Customers, End Users, and Admins.  
 Includes **AI-powered pre/post rental damage detection** and **sustainability dashboards** to promote eco-friendly rentals.
-
+It will help us to highly stop fraud cases like cases face in toriust places , Inventory Management Challenges , Pricing and seasonal demand control
 ---
 
 ## 🚀 Features by Role
