@@ -1,5 +1,6 @@
 import express from "express";
-import { PrismaClient, PaymentStatusEnum } from "@prisma/client";
+import pkg from '@prisma/client';
+const { PrismaClient, InvoiceTypeEnum, InvoiceStatusEnum } = pkg;
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 import { isAdmin } from "../middlewares/isAdmin.js";
 

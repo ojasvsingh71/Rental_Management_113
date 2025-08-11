@@ -2,7 +2,7 @@ import express from "express";
 import { PrismaClient, UserRole } from "@prisma/client";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 import { isAdmin } from "../middlewares/isAdmin.js";
-import { userSchema } from "../validators/validate.js";
+import { userSchema } from "../validate/validate.js";
 
 const prisma = new PrismaClient();
 const router = express.Router();

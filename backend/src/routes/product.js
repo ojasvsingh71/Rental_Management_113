@@ -6,7 +6,7 @@ import {
   productSchema,
   rentalDurationSchema,
   productAvailabilitySchema,
-} from "../validators/validate.js";
+} from "../validate/validate.js";
 
 const prisma = new PrismaClient();
 const router = express.Router();
