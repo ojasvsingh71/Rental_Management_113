@@ -10,13 +10,24 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@types/node": "^24.2.1",
-    "file-saver": "^2.0.5",
-    "html2canvas": "^1.4.1",
-    "jspdf": "^3.0.1",
+    "@date-io/date-fns": "^3.2.1",
+    "@hookform/resolvers": "^5.2.1",
+    "@stripe/react-stripe-js": "^3.9.0",
+    "@stripe/stripe-js": "^7.8.0",
+    "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
+    "date-fns-tz": "^3.2.0",
     "lucide-react": "^0.344.0",
+    "qrcode.react": "^4.2.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-big-calendar": "^1.19.4",
+    "react-dom": "^18.3.1",
+    "react-dropzone": "^14.3.8",
+    "react-hook-form": "^7.62.0",
+    "react-hot-toast": "^2.5.2",
+    "recharts": "^3.1.2",
+    "zod": "^4.0.17",
+    "zustand": "^5.0.7"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",
