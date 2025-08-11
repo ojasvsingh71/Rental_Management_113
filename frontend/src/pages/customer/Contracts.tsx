@@ -25,16 +25,17 @@ const Contracts: React.FC = () => {
   });
 
   useEffect(() => {
-    fetch("/api/contract", { credentials: "include" })
-      .then((res) => res.json())
-      .then((data) => {
-        setContracts(data.contracts || []);
-        setLoading(false);
-      })
-      .catch(() => {
-        setError("Failed to load contracts");
-        setLoading(false);
-      });
+    import("../../services/api").then(({ default: api }) => {
+      api.get("/contract")
+        .then((res) => {
+          setContracts(res.data.contracts || []);
+          setLoading(false);
+        })
+        .catch(() => {
+          setError("Failed to load contracts");
+          setLoading(false);
+        });
+    });
   }, []);
 
   const handleViewContract = (contract: Contract) => {

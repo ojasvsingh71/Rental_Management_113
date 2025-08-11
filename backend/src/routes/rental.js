@@ -89,17 +89,21 @@ router.get("/", authMiddleware, isAdmin, async (req, res) => {
  */
 router.get("/my", authMiddleware, async (req, res) => {
   try {
-    const rentals = await prisma.rental.findMany({
-      where: { customerId: req.user.id },
-      include: {
-        product: true,
-        history: true,
-        quotation: true,
-      },
-      orderBy: { createdAt: "desc" },
-    });
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ error: "Unauthorized: User not found" });
+    }
+      const rentals = await prisma.rental.findMany({
+        where: { customerId: req.user.id },
+        include: {
+          product: true,
+          rentalHistories: true, // <-- FIXED
+          quotation: true,
+        },
+        orderBy: { createdAt: "desc" },
+      });
     res.json(rentals);
   } catch (error) {
+    console.error("Error in /api/rental/my:", error);
     res.status(500).json({ error: error.message });
   }
 });
