@@ -1,145 +1,140 @@
-# 📦 AI-Powered Sustainable Rental Platform
+📦 AI-Powered Sustainable Rental Platform
+A next-generation role-based rental management system designed to streamline operations, detect rental damages using AI, and promote eco-friendly usage through sustainability dashboards.
+Built for Customers, End Users, and Admins, it addresses industry challenges like fraud prevention, inventory management, dynamic pricing, and seasonal demand control—critical issues in tourist-heavy and high-traffic rental markets.
 
-A full-featured rental management system with **role-based portals** for Customers, End Users, and Admins.  
-Includes **AI-powered pre/post rental damage detection** and **sustainability dashboards** to promote eco-friendly rentals.
-It will help us to highly stop fraud cases like cases face in toriust places , Inventory Management Challenges , Pricing and seasonal demand control
----
+🚀 Feature Overview by Role
+1. Customer Portal (Person Renting the Product)
+🔍 Smart Product Discovery
+Browse products with HD images, pricing tiers, and eco-scores.
 
-## 🚀 Features by Role
+Advanced filters: category, availability, duration, and price range.
 
-### **1. Customer Portal (Person Renting the Product)**
+Sustainability insights: “You saved X kg CO₂ by renting instead of buying.”
 
-#### 🔍 Product Browsing & Search
-- View rentable products with **images**, **pricing**, and **eco-scores**.
-- Filter by **category**, **availability**, **pricing**, and **rental duration**.
-- Sustainability info: _“You saved X kg CO₂ by renting vs buying.”_
+📄 Rich Product Details
+Transparent pricing by hour/day/week/month.
 
-#### 📄 Product Details Page
-- Detailed price breakdown (**hour/day/week/month**).
-- Real-time availability calendar.
-- Eco-score display per product.
+Real-time availability calendar.
 
-#### 🛒 Rental Booking Flow
-- Select rental duration (**custom start & end date/time**).
-- Add delivery/pickup preferences.
-- View total cost with **deposits & discounts** applied.
+Product-specific eco-score display.
 
-#### 💳 Online Payment
-- Multiple gateways: **PayPal, Stripe, Razorpay**.
-- Option for **full payment** or **partial deposit**.
+🛒 Seamless Booking Flow
+Customizable rental duration (start/end date & time).
 
-#### 📑 Quotations & Orders
-- Generate rental quotations.
-- Confirm quotation into a rental order.
-- Download **rental contract/invoice**.
+Delivery and pickup preferences.
 
-#### 🖼 Pre-Rental Scan Upload
-- Upload images/videos for **condition reporting**.
-- **AI detects existing damages** & generates pre-rental report.
+Live cost calculation with deposits, discounts, and promotions.
 
-#### 📷 Post-Rental Scan Upload
-- Upload images/videos upon return.
-- **AI compares with pre-rental report** to detect new damages.
+💳 Secure Payments
+Multi-gateway support: PayPal, Stripe, Razorpay.
 
-#### 🔔 Notifications & Reminders
-- Automated reminders for upcoming pickup/return.
-- Alerts for **late returns**.
+Flexible payments: full or partial deposit.
 
-#### 📜 Order History & Tracking
-- Track active rentals, upcoming pickups/returns, completed orders.
+📑 Quotations & Orders
+Instant rental quotations.
 
-#### 🌱 Sustainability Dashboard (Customer View)
-- Total CO₂ saved by renting.
-- Past rentals’ environmental impact.
+Convert quotation to confirmed rental order.
 
-#### 👤 Profile & Preferences
-- Manage personal info, saved addresses, payment methods.
+Digital rental contract & invoice download.
 
----
+📷 AI-Powered Condition Scans
+Pre-rental upload: AI detects and documents existing damages.
 
-### **2. End User Portal (Person Actually Using the Product)**
+Post-rental upload: AI compares with pre-rental scans to highlight new damage.
 
-#### 🚚 Pickup & Return Scheduling
-- View delivery date & time.
-- View pickup date & time for return.
+Automated pre/post rental condition reports stored for compliance.
 
-#### 📖 Product Usage Guidelines
-- Access product manuals/instructions.
-- Safety precautions.
+🔔 Intelligent Notifications
+Pickup/return reminders.
 
-#### 🔔 Notifications
-- Reminders **N days** before return date.
+Late return alerts with penalty estimation.
 
-#### 📷 Condition Reporting (If Allowed)
-- Upload photos/videos for damage reporting.
+🌱 Sustainability Dashboard (Customer View)
+Cumulative CO₂ savings.
 
-#### 🌱 Eco-Friendly Tips
-- Suggestions for using the product sustainably.
+Per-rental environmental impact breakdown.
 
----
+👤 Profile & Preferences
+Manage profile, addresses, and payment methods.
 
-### **3. Admin / Back-Office Portal (Business Owner / Staff)**
+2. End User Portal (Person Using the Product)
+🚚 Delivery & Return Scheduling
+Real-time delivery/pickup date & time tracking.
 
-#### 📦 Product Management
-- Add/edit/delete products.
-- Mark products as rentable/non-rentable.
-- Set pricing per duration (**hour/day/week/month**).
-- Add **eco-score** for each product.
+📖 Usage Guidelines
+Digital manuals, safety precautions, and best practices.
 
-#### 📅 Availability Management
-- Calendar/list view of availability.
-- Block out dates for maintenance.
+🔔 Reminders
+Return alerts sent N days in advance.
 
-#### 📑 Order & Contract Management
-- Create quotations/orders manually.
-- Confirm quotations into rental orders.
-- Generate and send rental contracts.
+📷 Damage Reporting
+Optional AI-assisted damage reporting.
 
-#### 🚚 Delivery Management
-- Track items from **Reservation → Pickup → Return**.
-- Assign delivery/pickup staff.
-- Auto-update stock status.
+🌱 Eco Tips
+Sustainable usage suggestions to reduce environmental footprint.
 
-#### 🤖 AI Condition Reports
-- Review AI-generated pre/post rental reports.
-- View **highlighted damage areas**.
-- Approve/adjust repair cost estimates.
-- Auto-deduct deposit for damages.
+3. Admin / Back-Office Portal (Business Owner / Staff)
+📦 Inventory & Product Management
+Add, edit, or remove products.
 
-#### 💰 Invoicing & Payments
-- Generate invoices (full or partial payment).
-- Automatic late fees.
+Set eco-scores and pricing tiers by duration.
 
-#### 📋 Price List Management
-- Multiple price lists for segments.
-- Seasonal & promotional rates.
-- Customer-specific discounts.
+Mark availability for maintenance or downtime.
 
-#### ⏳ Returns & Delays Handling
-- Late return alerts.
-- Penalty calculation.
+📅 Availability & Order Management
+Visual availability calendar.
 
-#### 📊 Reports & Dashboard
-- Most rented products.
-- Total rental revenue.
-- Top customers.
-- Export in **PDF, Excel, CSV**.
+Create/manage rental orders and contracts.
 
-#### 🌱 Sustainability Dashboard (Admin View)
-- Total CO₂ saved across rentals.
-- Category-wise breakdown.
-- Environmental impact report for marketing.
+🚚 Logistics & Delivery Tracking
+Manage reservations from pickup → return.
 
----
+Assign staff and track vehicle routes.
 
-## 🌟 New Feature Additions (AI + Sustainability)
+🤖 AI Damage Detection
+View AI-generated pre/post rental reports.
 
-### **Sustainability Dashboard**
-- **Customer View**: Personal CO₂ savings, per-rental eco-score.
-- **Admin View**: Global CO₂ savings, product-level breakdown.
+Highlight damaged areas visually.
 
-### **AI Pre/Post Rental Scan**
-- **Pre-rental**: Detects & documents existing damages.
-- **Post-rental**: Compares & highlights new damages.
-- Auto-generated damage report stored in the database.
-- Automated damage fee deduction workflow.
+Approve or adjust automated repair cost estimates.
+
+Trigger deposit deduction workflows.
+
+💰 Billing & Payments
+Generate full/partial invoices.
+
+Auto-apply late return penalties.
+
+📊 Analytics & Insights
+Track top rented items, revenue, and customer rankings.
+
+Export reports in PDF, Excel, CSV.
+
+🌱 Sustainability Dashboard (Admin View)
+Total CO₂ savings across all rentals.
+
+Category-wise eco-impact.
+
+Branded sustainability reports for marketing use.
+
+🌟 AI & Sustainability Innovations
+AI Condition Analysis
+Pre-Rental: Document and timestamp product condition.
+
+Post-Rental: Automated comparison detects new damage.
+
+Seamless damage fee calculation and deposit adjustments.
+
+Eco Impact Tracking
+Individual customer and global company CO₂ savings metrics.
+
+Product-level sustainability scoring to influence rental decisions.
+
+🎯 Business Value Proposition
+Fraud Prevention: AI detects and records damage with photographic proof.
+
+Sustainability Differentiator: Eco-score marketing boosts brand image.
+
+Revenue Optimization: Dynamic pricing for seasonal demand control.
+
+Operational Efficiency: Unified platform for booking, billing, and logistics.
