@@ -16,7 +16,7 @@ const productSearchSchema = z.object({
 });
 
 // Rental filter
-const rentalFilterSchema = z.object({
+const rentalFilterSchema = z.object({   
     status: z.enum(Object.values(RentalStatus)).optional(),
     customerId: z.string().cuid().optional(),
     startDate: z.coerce.date().optional(),
