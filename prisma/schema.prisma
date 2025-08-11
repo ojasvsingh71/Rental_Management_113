@@ -1,0 +1,189 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// -------------------
+// Enums
+// -------------------
+enum UserRole {
+  CUSTOMER
+  END_USER
+  ADMIN
+}
+
+enum RentalStatus {
+  QUOTATION
+  CONFIRMED
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  PARTIAL
+  REFUNDED
+}
+
+enum InvoiceType {
+  FULL
+  PARTIAL
+  LATE_FEE
+}
+
+enum NotificationType {
+  CUSTOMER_REMINDER
+  END_USER_REMINDER
+}
+
+// -------------------
+// Models
+// -------------------
+model User {
+  id             String         @id @default(cuid())
+  name           String
+  email          String         @unique
+  passwordHash   String
+  role           UserRole       @default(CUSTOMER)
+  phone          String?
+  rentals        Rental[]
+  notifications  Notification[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+model Product {
+  id               String                @id @default(cuid())
+  name             String
+  description      String?
+  category         String?
+  isRentable       Boolean               @default(true)
+  unitType         String
+  basePrice        Float
+  rentalDurations  RentalDuration[]
+  availability     ProductAvailability[]
+  rentals          Rental[]
+  pricelistItems   PricelistItem[]
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @updatedAt
+}
+
+model RentalDuration {
+  id        String   @id @default(cuid())
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+  duration  String
+  price     Float
+}
+
+model ProductAvailability {
+  id        String   @id @default(cuid())
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+  startDate DateTime
+  endDate   DateTime
+  isBooked  Boolean  @default(false)
+}
+
+model Rental {
+  id           String         @id @default(cuid())
+  customer     User           @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customerId   String
+  product      Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId    String
+  startDate    DateTime
+  endDate      DateTime
+  status       RentalStatus   @default(QUOTATION)
+
+  quotation    Quotation?
+  pickup       Pickup?
+  returnRecord RentalReturn?
+
+  invoices     Invoice[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+}
+
+model Quotation {
+  id         String   @id @default(cuid())
+  rental     Rental   @relation(fields: [rentalId], references: [id], onDelete: Cascade)
+  rentalId   String   @unique
+  price      Float
+  validTill  DateTime?
+  isAccepted Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
+
+model Pickup {
+  id        String   @id @default(cuid())
+  rental    Rental   @relation(fields: [rentalId], references: [id], onDelete: Cascade)
+  rentalId  String   @unique
+  scheduled DateTime
+  completed Boolean  @default(false)
+}
+
+model RentalReturn {
+  id        String   @id @default(cuid())
+  rental    Rental   @relation(fields: [rentalId], references: [id], onDelete: Cascade)
+  rentalId  String   @unique
+  scheduled DateTime
+  completed Boolean  @default(false)
+  lateFee   Float?
+}
+
+model Pricelist {
+  id          String         @id @default(cuid())
+  name        String
+  description String?
+  validFrom   DateTime
+  validTo     DateTime
+  items       PricelistItem[]
+}
+
+model PricelistItem {
+  id          String     @id @default(cuid())
+  pricelist   Pricelist  @relation(fields: [pricelistId], references: [id], onDelete: Cascade)
+  pricelistId String
+  product     Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId   String
+  price       Float
+  discount    Float?
+}
+
+model Invoice {
+  id         String         @id @default(cuid())
+  rental     Rental         @relation(fields: [rentalId], references: [id], onDelete: Cascade)
+  rentalId   String
+  amount     Float
+  type       InvoiceType
+  status     PaymentStatus  @default(PENDING)
+  payments   Payment[]
+  createdAt  DateTime       @default(now())
+}
+
+model Payment {
+  id            String        @id @default(cuid())
+  invoice       Invoice       @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  invoiceId     String
+  amount        Float
+  method        String
+  transactionId String?
+  status        PaymentStatus @default(PAID)
+  createdAt     DateTime      @default(now())
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  type      NotificationType
+  message   String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  sendDate  DateTime
+  isRead    Boolean          @default(false)
+}
