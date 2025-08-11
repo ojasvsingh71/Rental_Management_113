@@ -21,6 +21,7 @@ interface CustomerPortalProps {
 
 const CustomerPortal: React.FC<CustomerPortalProps> = ({ onLogout }) => {
   const [activeTab, setActiveTab] = useState('browse');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const sidebarItems: SidebarItem[] = [
     { id: 'browse', label: 'Browse Products', icon: Search },
@@ -59,7 +60,7 @@ const CustomerPortal: React.FC<CustomerPortalProps> = ({ onLogout }) => {
   };
 
   const CustomSidebar = () => (
-    <div className="w-64 bg-white shadow-lg">
+    <div className="w-64 bg-white shadow-lg flex flex-col h-full">
       <div className="p-6 border-b">
         <div className="flex items-center">
           <Leaf className="h-8 w-8 text-green-600 mr-3" />
@@ -70,14 +71,17 @@ const CustomerPortal: React.FC<CustomerPortalProps> = ({ onLogout }) => {
         </div>
       </div>
       
-      <nav className="mt-6">
+      <nav className="mt-6 flex-1 overflow-y-auto">
         {sidebarItems.map((item) => {
           const IconComponent = item.icon;
           const unreadCount = item.id === 'notifications' ? 3 : 0;
           return (
             <button
               key={item.id}
-              onClick={() => setActiveTab(item.id)}
+              onClick={() => {
+                setActiveTab(item.id);
+                setSidebarOpen(false);
+              }}
               className={`w-full flex items-center px-6 py-3 text-left transition-colors ${
                 activeTab === item.id
                   ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-600'
@@ -96,7 +100,7 @@ const CustomerPortal: React.FC<CustomerPortalProps> = ({ onLogout }) => {
         })}
       </nav>
       
-      <div className="absolute bottom-0 w-64 p-6">
+      <div className="p-6 border-t mt-auto">
         <div className="bg-green-50 p-4 rounded-lg mb-4">
           <div className="flex items-center gap-2 mb-2">
             <Award className="h-5 w-5 text-green-600" />
@@ -116,10 +120,10 @@ const CustomerPortal: React.FC<CustomerPortalProps> = ({ onLogout }) => {
   );
 
   const CustomHeader = () => (
-    <header className="bg-white shadow-sm border-b p-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">{getPageTitle()}</h1>
-        <div className="flex items-center gap-4">
+    <header className="bg-white shadow-sm border-b p-4 md:p-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <h1 className="text-xl md:text-2xl font-bold text-gray-900">{getPageTitle()}</h1>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
           <div className="bg-green-50 px-4 py-2 rounded-lg">
             <span className="text-green-700 text-sm font-medium">
               Total CO₂ Saved: {sustainabilityData.totalCO2Saved} kg
@@ -136,9 +140,35 @@ const CustomerPortal: React.FC<CustomerPortalProps> = ({ onLogout }) => {
   );
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      <CustomSidebar />
-      <div className="flex-1 overflow-auto">
+    <div className="flex h-screen bg-gray-50 relative">
+      {/* Mobile sidebar overlay */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+      
+      {/* Sidebar */}
+      <div className={`fixed lg:static inset-y-0 left-0 z-50 transform ${
+        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+      } lg:translate-x-0 transition-transform duration-300 ease-in-out`}>
+        <CustomSidebar />
+      </div>
+
+      <div className="flex-1 overflow-auto lg:ml-0">
+        {/* Mobile menu button */}
+        <div className="lg:hidden bg-white border-b p-4">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="text-gray-600 hover:text-gray-900"
+          >
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
+        
         <CustomHeader />
         <main className="p-6">
           {renderContent()}
