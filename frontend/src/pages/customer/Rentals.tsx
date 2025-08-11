@@ -1,43 +1,58 @@
-import React, { useState } from 'react';
-import { Plus } from 'lucide-react';
-import { mockRentals } from '../../data/customerData';
-import RentalCard from '../../components/customer/RentalCard';
-import Pagination from '../../components/common/Pagination';
-import { usePagination } from '../../hooks/usePagination';
-import { Rental } from '../../types/customer';
+import React, { useEffect, useState } from "react";
+import { Plus } from "lucide-react";
+import RentalCard from "../../components/customer/RentalCard";
+import Pagination from "../../components/common/Pagination";
+import { usePagination } from "../../hooks/usePagination";
+import { Rental } from "../../types/customer";
 
 const Rentals: React.FC = () => {
-  const [activeFilter, setActiveFilter] = useState('all');
+  const [rentals, setRentals] = useState<Rental[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [activeFilter, setActiveFilter] = useState("all");
 
-  const filteredRentals = mockRentals.filter(rental => {
-    if (activeFilter === 'all') return true;
+  useEffect(() => {
+    fetch("/api/rental", { credentials: "include" })
+      .then((res) => res.json())
+      .then((data) => {
+        setRentals(data.rentals || []);
+        setLoading(false);
+      })
+      .catch(() => {
+        setError("Failed to load rentals");
+        setLoading(false);
+      });
+  }, []);
+
+  const filteredRentals = rentals.filter((rental) => {
+    if (activeFilter === "all") return true;
     return rental.status.toLowerCase() === activeFilter;
   });
 
-  const pagination = usePagination<Rental>({ 
-    data: filteredRentals, 
-    itemsPerPage: 5 
+  const pagination = usePagination<Rental>({
+    data: filteredRentals,
+    itemsPerPage: 5,
   });
 
   const getStatusCount = (status: string) => {
-    if (status === 'all') return mockRentals.length;
-    return mockRentals.filter(r => r.status.toLowerCase() === status).length;
+    if (status === "all") return rentals.length;
+    return rentals.filter((r) => r.status.toLowerCase() === status).length;
   };
 
   const handleExtend = (rentalId: string) => {
-    console.log('Extend rental:', rentalId);
+    console.log("Extend rental:", rentalId);
   };
 
   const handleTrack = (rentalId: string) => {
-    console.log('Track rental:', rentalId);
+    console.log("Track rental:", rentalId);
   };
 
   const handleRate = (rentalId: string, rating: number) => {
-    console.log('Rate rental:', rentalId, rating);
+    console.log("Rate rental:", rentalId, rating);
   };
 
   const handleUploadScan = (rentalId: string) => {
-    console.log('Upload scan for rental:', rentalId);
+    console.log("Upload scan for rental:", rentalId);
   };
 
   return (
@@ -45,44 +60,44 @@ const Rentals: React.FC = () => {
       <div className="flex items-center justify-between">
         <div className="flex gap-4">
           <button
-            onClick={() => setActiveFilter('all')}
+            onClick={() => setActiveFilter("all")}
             className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-              activeFilter === 'all' 
-                ? 'bg-blue-600 text-white' 
-                : 'text-gray-600 hover:bg-gray-100'
+              activeFilter === "all"
+                ? "bg-blue-600 text-white"
+                : "text-gray-600 hover:bg-gray-100"
             }`}
           >
-            All Rentals ({getStatusCount('all')})
+            All Rentals ({getStatusCount("all")})
           </button>
           <button
-            onClick={() => setActiveFilter('active')}
+            onClick={() => setActiveFilter("active")}
             className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-              activeFilter === 'active' 
-                ? 'bg-blue-600 text-white' 
-                : 'text-gray-600 hover:bg-gray-100'
+              activeFilter === "active"
+                ? "bg-blue-600 text-white"
+                : "text-gray-600 hover:bg-gray-100"
             }`}
           >
-            Active ({getStatusCount('active')})
+            Active ({getStatusCount("active")})
           </button>
           <button
-            onClick={() => setActiveFilter('upcoming')}
+            onClick={() => setActiveFilter("upcoming")}
             className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-              activeFilter === 'upcoming' 
-                ? 'bg-blue-600 text-white' 
-                : 'text-gray-600 hover:bg-gray-100'
+              activeFilter === "upcoming"
+                ? "bg-blue-600 text-white"
+                : "text-gray-600 hover:bg-gray-100"
             }`}
           >
-            Upcoming ({getStatusCount('upcoming')})
+            Upcoming ({getStatusCount("upcoming")})
           </button>
           <button
-            onClick={() => setActiveFilter('completed')}
+            onClick={() => setActiveFilter("completed")}
             className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-              activeFilter === 'completed' 
-                ? 'bg-blue-600 text-white' 
-                : 'text-gray-600 hover:bg-gray-100'
+              activeFilter === "completed"
+                ? "bg-blue-600 text-white"
+                : "text-gray-600 hover:bg-gray-100"
             }`}
           >
-            Completed ({getStatusCount('completed')})
+            Completed ({getStatusCount("completed")})
           </button>
         </div>
         <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2">
@@ -104,9 +119,23 @@ const Rentals: React.FC = () => {
         ))}
       </div>
 
-      {filteredRentals.length === 0 && (
+      {loading && (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
-          <div className="text-gray-500 mb-4">No rentals found for the selected filter</div>
+          <div className="text-gray-500 mb-4">Loading rentals...</div>
+        </div>
+      )}
+
+      {error && (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
+          <div className="text-red-500 mb-4">{error}</div>
+        </div>
+      )}
+
+      {filteredRentals.length === 0 && !loading && (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
+          <div className="text-gray-500 mb-4">
+            No rentals found for the selected filter
+          </div>
           <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
             Browse Products
           </button>

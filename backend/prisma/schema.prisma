@@ -55,6 +55,7 @@ model User {
   phone          String?
   rentals        Rental[]       @relation("CustomerRentals")
   notifications  Notification[]
+  avatarUrl      String?
   rentalHistoryChanges RentalHistory[] @relation("RentalHistoryChangedBy")
   pickups        Pickup[]       @relation("PickupAssignedStaff")
   returns        RentalReturn[] @relation("ReturnAssignedStaff")

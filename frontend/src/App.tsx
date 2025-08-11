@@ -4,7 +4,7 @@ import AdminDashboard from "./AdminDashboard";
 import CustomerPortal from "./CustomerPortal";
 import EndUserPortal from "./EndUserPortal";
 import Chatbot from "./components/Chatbot";
-import { MessageCircle, X } from "lucide-react"; 
+import { MessageCircle, X } from "lucide-react";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
@@ -23,7 +23,7 @@ function AppContent() {
 
   const renderPortalByRole = () => {
     if (!user) return null;
-    
+
     switch (user.role) {
       case "ADMIN":
         return <AdminDashboard />;
@@ -39,21 +39,23 @@ function AppContent() {
   return (
     <div className="bg-gray-50 min-h-screen">
       <Routes>
-        <Route 
-          path="/login" 
-          element={user ? <Navigate to="/dashboard" /> : <Login />} 
+        <Route
+          path="/login"
+          element={user ? <Navigate to="/dashboard" /> : <Login />}
         />
-        <Route 
-          path="/signup" 
-          element={user ? <Navigate to="/dashboard" /> : <Signup />} 
+        <Route
+          path="/signup"
+          element={user ? <Navigate to="/dashboard" /> : <Signup />}
         />
-        <Route 
-          path="/dashboard" 
-          element={user ? renderPortalByRole() : <Navigate to="/login" />} 
+        {/* Redirect /register to /signup for legacy/bookmark support */}
+        <Route path="/register" element={<Navigate to="/signup" replace />} />
+        <Route
+          path="/dashboard"
+          element={user ? renderPortalByRole() : <Navigate to="/login" />}
         />
-        <Route 
-          path="/" 
-          element={<Navigate to={user ? "/dashboard" : "/login"} />} 
+        <Route
+          path="/"
+          element={<Navigate to={user ? "/dashboard" : "/login"} />}
         />
       </Routes>
 

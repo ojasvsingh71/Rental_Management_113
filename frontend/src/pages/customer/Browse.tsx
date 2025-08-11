@@ -1,43 +1,64 @@
-import React, { useState, useMemo } from 'react';
-import { Search, Filter } from 'lucide-react';
-import { mockProducts, categories } from '../../data/customerData';
-import ProductGrid from '../../components/customer/ProductGrid';
-import { Product } from '../../types/customer';
+import React, { useEffect, useState, useMemo } from "react";
+import { Search, Filter } from "lucide-react";
+import { categories } from "../../data/customerData";
+import ProductGrid from "../../components/customer/ProductGrid";
+import { Product } from "../../types/customer";
 
 const Browse: React.FC = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [priceRange, setPriceRange] = useState('all');
-  const [sortBy, setSortBy] = useState('popular');
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [priceRange, setPriceRange] = useState("all");
+  const [sortBy, setSortBy] = useState("popular");
+
+  useEffect(() => {
+    fetch("/api/product")
+      .then((res) => res.json())
+      .then((data) => {
+        setProducts(data.products || []);
+        setLoading(false);
+      })
+      .catch(() => {
+        setError("Failed to load products");
+        setLoading(false);
+      });
+  }, []);
 
   const filteredProducts = useMemo(() => {
-    let filtered = mockProducts.filter(product => {
-      const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          product.category.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory = selectedCategory === 'all' || 
-                            product.category.toLowerCase().replace(' ', '-') === selectedCategory;
-      
+    let filtered = products.filter((product) => {
+      const matchesSearch =
+        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.category.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCategory =
+        selectedCategory === "all" ||
+        product.category.toLowerCase().replace(" ", "-") === selectedCategory;
+
       let matchesPrice = true;
-      if (priceRange !== 'all') {
-        const [min, max] = priceRange.split('-').map(p => p === '100+' ? 1000 : parseInt(p));
-        matchesPrice = product.price.day >= min && (max ? product.price.day <= max : true);
+      if (priceRange !== "all") {
+        const [min, max] = priceRange
+          .split("-")
+          .map((p) => (p === "100+" ? 1000 : parseInt(p)));
+        matchesPrice =
+          product.price.day >= min && (max ? product.price.day <= max : true);
       }
-      
+
       return matchesSearch && matchesCategory && matchesPrice;
     });
 
     // Sort products
     switch (sortBy) {
-      case 'price-low':
+      case "price-low":
         filtered.sort((a, b) => a.price.day - b.price.day);
         break;
-      case 'price-high':
+      case "price-high":
         filtered.sort((a, b) => b.price.day - a.price.day);
         break;
-      case 'rating':
+      case "rating":
         filtered.sort((a, b) => b.rating - a.rating);
         break;
-      case 'eco':
+      case "eco":
         filtered.sort((a, b) => b.ecoScore - a.ecoScore);
         break;
       default:
@@ -45,17 +66,29 @@ const Browse: React.FC = () => {
     }
 
     return filtered;
-  }, [searchTerm, selectedCategory, priceRange, sortBy]);
+  }, [searchTerm, selectedCategory, priceRange, sortBy, products]);
 
   const handleProductSelect = (product: Product) => {
-    console.log('Selected product:', product.id);
+    console.log("Selected product:", product.id);
     // Handle product selection (e.g., open rental modal)
   };
 
   const handleWishlistToggle = (productId: number) => {
-    console.log('Toggle wishlist for product:', productId);
+    console.log("Toggle wishlist for product:", productId);
     // Handle wishlist toggle
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="text-red-500">{error}</div>;
+  }
+
+  if (products.length === 0) {
+    return <div>No products found.</div>;
+  }
 
   return (
     <div className="space-y-6">
@@ -73,16 +106,18 @@ const Browse: React.FC = () => {
             />
           </div>
           <div className="flex gap-3">
-            <select 
+            <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
               className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             >
-              {categories.map(cat => (
-                <option key={cat.id} value={cat.id}>{cat.name}</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
               ))}
             </select>
-            <select 
+            <select
               value={priceRange}
               onChange={(e) => setPriceRange(e.target.value)}
               className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
@@ -92,7 +127,7 @@ const Browse: React.FC = () => {
               <option value="50-100">$50 - $100/day</option>
               <option value="100+">$100+/day</option>
             </select>
-            <select 
+            <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
               className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
@@ -114,12 +149,18 @@ const Browse: React.FC = () => {
             key={category.id}
             onClick={() => setSelectedCategory(category.id)}
             className={`bg-white rounded-lg p-4 text-center hover:shadow-md transition-all cursor-pointer border-2 ${
-              selectedCategory === category.id ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
+              selectedCategory === category.id
+                ? "border-blue-500 bg-blue-50"
+                : "border-gray-200"
             }`}
           >
             <div className="text-2xl mb-2">{category.icon}</div>
-            <span className="text-sm font-medium text-gray-700">{category.name}</span>
-            <div className="text-xs text-gray-500 mt-1">{category.count} items</div>
+            <span className="text-sm font-medium text-gray-700">
+              {category.name}
+            </span>
+            <div className="text-xs text-gray-500 mt-1">
+              {category.count} items
+            </div>
           </button>
         ))}
       </div>
@@ -130,7 +171,7 @@ const Browse: React.FC = () => {
           {filteredProducts.length} Products Found
         </h2>
         <div className="text-sm text-gray-600">
-          Showing results for "{searchTerm || 'all products'}"
+          Showing results for "{searchTerm || "all products"}"
         </div>
       </div>
 
