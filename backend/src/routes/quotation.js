@@ -1,6 +1,7 @@
 // routes/quotation.routes.js
 import express from "express";
-import { PrismaClient, RentalStatus, Role } from "@prisma/client";
+import pkg from '@prisma/client';
+const { PrismaClient, RentalStatus, Role } = pkg; 
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 import { isAdmin } from "../middlewares/isAdmin.js";
 

@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { prisma } from "../prismaClient.js";
+import pkg from "@prisma/client";
+const { PrismaClient, RentalStatus } = pkg;
 import { z } from "zod";
-import { RentalStatusEnum } from "../validations/zodSchemas.js";
 
 const router = Router();
 
@@ -17,10 +17,10 @@ const productSearchSchema = z.object({
 
 // Rental filter
 const rentalFilterSchema = z.object({
-  status: RentalStatusEnum.optional(),
-  customerId: z.string().cuid().optional(),
-  startDate: z.coerce.date().optional(),
-  endDate: z.coerce.date().optional(),
+    status: z.enum(Object.values(RentalStatus)).optional(),
+    customerId: z.string().cuid().optional(),
+    startDate: z.coerce.date().optional(),
+    endDate: z.coerce.date().optional(),
 });
 
 // --------------------

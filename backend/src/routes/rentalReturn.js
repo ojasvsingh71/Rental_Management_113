@@ -5,7 +5,7 @@ import { authMiddleware } from "../middlewares/authMiddleware.js";
 import { isAdmin } from "../middlewares/isAdmin.js";
 import {
   rentalReturnSchema
-} from "../validators/validate.js"; // adjust path if needed
+} from "../validate/validate.js"; // adjust path if needed
 import { z } from "zod";
 
 const prisma = new PrismaClient();
