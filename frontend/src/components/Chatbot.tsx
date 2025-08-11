@@ -29,7 +29,7 @@ const Chatbot: React.FC = () => {
     setLoading(true);
 
     try {
-      const res = await axios.post("http://localhost:2003/chat", {
+      const res = await axios.post("https://sewasaathi-2aze.onrender.com/chat", {
         messages: newMessages,
       });
 

@@ -1,6 +1,6 @@
-import React from 'react';
-import { Star, Trash2 } from 'lucide-react';
-import { Product } from '../../types';
+import React from "react";
+import { Star, Trash2 } from "lucide-react";
+import { Product } from "../../types";
 
 interface ProductCardProps {
   product: Product;
@@ -9,12 +9,28 @@ interface ProductCardProps {
   onDelete?: (product: Product) => void;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product, onEdit, onViewDetails, onDelete }) => {
+const ProductCard: React.FC<ProductCardProps> = ({
+  product,
+  onEdit,
+  onViewDetails,
+  onDelete,
+}) => {
+  if (!product) {
+    return (
+      <div className="p-4 bg-red-100 text-red-700 rounded">
+        Product data unavailable
+      </div>
+    );
+  }
+
+  const dayValue = product.price?.day ?? "N/A";
+  const weekValue = product.price?.week ?? "N/A";
+
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
       <div className="relative">
-        <img 
-          src={product.image} 
+        <img
+          src={product.image}
           alt={product.name}
           className="w-full h-48 object-cover"
         />
@@ -22,16 +38,20 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onEdit, onViewDetail
           <span className="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium">
             Eco: {product.ecoScore}
           </span>
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-            product.condition === 'Excellent' ? 'bg-green-100 text-green-800' :
-            product.condition === 'Good' ? 'bg-blue-100 text-blue-800' :
-            'bg-yellow-100 text-yellow-800'
-          }`}>
+          <span
+            className={`px-2 py-1 rounded-full text-xs font-medium ${
+              product.condition === "Excellent"
+                ? "bg-green-100 text-green-800"
+                : product.condition === "Good"
+                ? "bg-blue-100 text-blue-800"
+                : "bg-yellow-100 text-yellow-800"
+            }`}
+          >
             {product.condition}
           </span>
         </div>
       </div>
-      
+
       <div className="p-6">
         <div className="flex items-center justify-between mb-3">
           <span className="text-sm text-gray-500">{product.category}</span>
@@ -40,9 +60,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onEdit, onViewDetail
             <span className="text-sm font-medium">{product.rating}</span>
           </div>
         </div>
-        
+
         <h3 className="font-semibold text-gray-900 mb-3">{product.name}</h3>
-        
+
         <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
           <div>
             <span className="text-gray-500">Stock:</span>
@@ -50,54 +70,57 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onEdit, onViewDetail
           </div>
           <div>
             <span className="text-gray-500">Available:</span>
-            <span className="font-medium ml-1 text-green-600">{product.available}</span>
+            <span className="font-medium ml-1 text-green-600">
+              {product.available}
+            </span>
           </div>
           <div>
             <span className="text-gray-500">Rented:</span>
-            <span className="font-medium ml-1 text-blue-600">{product.rented}</span>
+            <span className="font-medium ml-1 text-blue-600">
+              {product.rented}
+            </span>
           </div>
           <div>
             <span className="text-gray-500">Revenue:</span>
             <span className="font-medium ml-1">{product.revenue}</span>
           </div>
         </div>
-        
+
         <div className="mb-4">
           <div className="text-xs text-gray-500 mb-2">Pricing Structure:</div>
           <div className="grid grid-cols-2 gap-2 text-sm">
-            <span>${product.price.day}/day</span>
-            <span>${product.price.week}/week</span>
+            <span>${dayValue}/day</span>
+            <span>${weekValue}/week</span>
           </div>
         </div>
-        
+
         <div className="flex items-center justify-between mb-4">
           <div className="text-sm text-gray-500">
             Last Maintenance: {product.lastMaintenance}
           </div>
         </div>
-        
+
         <div className="flex gap-2 flex-wrap">
-          <button 
+          <button
             onClick={() => onEdit?.(product)}
             className="flex-1 min-w-0 bg-blue-50 text-blue-600 py-2 px-3 rounded-lg text-sm font-medium hover:bg-blue-100 transition-colors"
           >
             Edit
           </button>
-          <button 
+          <button
             onClick={() => onViewDetails?.(product)}
             className="flex-1 min-w-0 bg-green-50 text-green-600 py-2 px-3 rounded-lg text-sm font-medium hover:bg-green-100 transition-colors"
           >
             Details
           </button>
           {onDelete && (
-            <button 
+            <button
               onClick={() => onDelete(product)}
               className="bg-red-50 text-red-600 p-2 rounded-lg hover:bg-red-100 transition-colors"
             >
               <Trash2 className="h-4 w-4" />
             </button>
           )}
-          </button>
         </div>
       </div>
     </div>

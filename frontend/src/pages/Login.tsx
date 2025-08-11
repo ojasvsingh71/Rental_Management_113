@@ -39,7 +39,7 @@ const Login: React.FC = () => {
           <h1 className="text-lg md:text-xl font-semibold text-white tracking-wide">
             Rental Management
           </h1>
-          <button 
+          <button
             onClick={() => navigate("/")}
             className="px-3 md:px-4 py-1 rounded-full text-xs md:text-sm border border-white/30 hover:bg-white/20 transition"
           >
@@ -100,13 +100,16 @@ const Login: React.FC = () => {
           <p className="text-sm mt-4 text-gray-400">
             don’t have account?{" "}
             <span
-              onClick={() => navigate("/register")}
+              onClick={() => navigate("/signup")}
               className="text-blue-400 cursor-pointer hover:underline"
             >
               Register here
             </span>
           </p>
-          <p className="text-sm text-gray-500 cursor-pointer hover:underline text-center">
+          <p
+            className="text-sm text-gray-500 cursor-pointer hover:underline text-center"
+            onClick={() => alert("Forgot password functionality coming soon!")}
+          >
             forgot username / password
           </p>
         </form>
