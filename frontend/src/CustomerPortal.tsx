@@ -11,7 +11,10 @@ import {
   Heart,
   LogOut,
   Award,
+  ShoppingCart,
+  Trash2,
 } from "lucide-react";
+
 import Sidebar from "./components/common/Sidebar";
 import Header from "./components/common/Header";
 import Browse from "./pages/customer/Browse";
@@ -24,6 +27,20 @@ import DamageChecker from "./pages/Damage-detector";
 import { sustainabilityData } from "./data/customerData";
 import { SidebarItem } from "./types";
 import { useAuth } from "./contexts/AuthContext";
+import Wishlist from "./pages/customer/Wishlist";
+import Sustainability from "./pages/Sustainability";
+
+// **New imports for notifications and profile**
+import Notifications from "./pages/customer/Notifications";
+import Profile from "./pages/customer/Profile";
+
+interface WishlistItem {
+  id: number;
+  name: string;
+  description: string;
+  imageUrl?: string;
+  price?: string;
+}
 
 interface CustomerPortalProps {
   onLogout: () => void;
@@ -33,6 +50,18 @@ const CustomerPortal: React.FC<CustomerPortalProps> = ({ onLogout }) => {
   const { logout } = useAuth();
   const [activeTab, setActiveTab] = useState("browse");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Cart state (items added from wishlist)
+  const [cartItems, setCartItems] = useState<WishlistItem[]>([]);
+
+  // Add item to cart from wishlist
+  const handleAddToCart = (item: WishlistItem) => {
+    setCartItems((prev) => {
+      if (prev.find((i) => i.id === item.id)) return prev; // prevent duplicates
+      return [...prev, item];
+    });
+    setActiveTab("contracts"); // Switch to Contracts tab
+  };
 
   const sidebarItems: SidebarItem[] = [
     { id: "browse", label: "Browse Products", icon: Search },
@@ -60,14 +89,22 @@ const CustomerPortal: React.FC<CustomerPortalProps> = ({ onLogout }) => {
         return <Browse />;
       case "rentals":
         return <Rentals />;
+      case "wishlist":
+        return <Wishlist onAddToCart={handleAddToCart} />;
       case "calendar":
         return <CalendarPage />;
       case "contracts":
-        return <Contracts />;
+        return <Contracts cartItems={cartItems} />;
       case "payments":
         return <Payments />;
       case "scans":
         return <DamageChecker />;
+      case "sustainability":
+        return <Sustainability />;
+      case "notifications":
+        return <Notifications />;
+      case "profile":
+        return <Profile />;
       default:
         return <ComingSoon title={getPageTitle()} />;
     }

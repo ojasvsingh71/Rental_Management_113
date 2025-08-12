@@ -51,30 +51,43 @@ const DamageChecker: React.FC = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto p-6 bg-white rounded-xl shadow-md border border-gray-200 text-center">
-      <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-      <h2 className="text-2xl font-bold mb-4">Phone Damage Checker</h2>
+    <div className="max-w-md mx-auto p-8 bg-white rounded-3xl shadow-xl border border-gray-300 text-center">
+      <Package className="h-20 w-20 text-green-500 mx-auto mb-6 animate-pulse" />
+      <h2 className="text-3xl font-extrabold mb-6 text-gray-900">
+        Product Damage Checker
+      </h2>
 
-      <input
-        type="file"
-        accept="image/*,video/*"
-        onChange={handleFileChange}
-        className="mb-4"
-      />
+      <label
+        htmlFor="file-upload"
+        className="block cursor-pointer mx-auto mb-6 max-w-xs rounded-lg border-2 border-dashed border-green-400 px-4 py-8 text-green-600 hover:bg-green-50 transition-colors font-medium"
+      >
+        {file ? (
+          <span>{file.name}</span>
+        ) : (
+          <span>Click to select an image or video</span>
+        )}
+        <input
+          id="file-upload"
+          type="file"
+          accept="image/*,video/*"
+          onChange={handleFileChange}
+          className="hidden"
+        />
+      </label>
 
       {preview && (
-        <div className="mb-4">
+        <div className="mb-6">
           {file?.type.startsWith("video") ? (
             <video
               src={preview}
               controls
-              className="mx-auto max-h-64 rounded-md"
+              className="mx-auto max-h-64 rounded-xl shadow-md border border-green-200"
             />
           ) : (
             <img
               src={preview}
               alt="preview"
-              className="mx-auto max-h-64 rounded-md"
+              className="mx-auto max-h-64 rounded-xl shadow-md border border-green-200"
             />
           )}
         </div>
@@ -83,13 +96,15 @@ const DamageChecker: React.FC = () => {
       <button
         disabled={loading}
         onClick={handleCheckDamage}
-        className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+        className="bg-green-600 text-white px-8 py-3 rounded-full shadow-lg hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-300 disabled:opacity-50 transition"
       >
         {loading ? "Checking..." : "Check Damage"}
       </button>
 
       {result && (
-        <p className="mt-4 text-lg font-semibold text-gray-700">{result}</p>
+        <div className="mt-8 p-4 max-w-xs mx-auto bg-green-50 border border-green-300 rounded-lg text-green-800 font-semibold shadow-inner">
+          {result}
+        </div>
       )}
     </div>
   );

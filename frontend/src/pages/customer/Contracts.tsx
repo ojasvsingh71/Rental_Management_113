@@ -9,15 +9,37 @@ import {
 } from "lucide-react";
 import Pagination from "../../components/common/Pagination";
 import { usePagination } from "../../hooks/usePagination";
-import { Contract } from "../../types/customer";
 
-const Contracts: React.FC = () => {
+interface WishlistItem {
+  id: number;
+  name: string;
+  description: string;
+  imageUrl?: string;
+  price?: string;
+}
+
+interface Contract {
+  id: string;
+  rentalId: string;
+  status: "Active" | "Completed" | "Pending";
+  totalAmount: string;
+  deposit: string;
+  insurance?: string;
+  signedDate: string;
+  terms: string[];
+  cancellationPolicy: string;
+}
+
+interface ContractsProps {
+  cartItems: WishlistItem[];
+}
+
+const Contracts: React.FC<ContractsProps> = ({ cartItems }) => {
+  // Your existing contract state (from backend) can still remain or you can merge with cartItems
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [selectedContract, setSelectedContract] = useState<Contract | null>(
-    null
-  );
+  const [selectedContract, setSelectedContract] = useState<Contract | null>(null);
 
   const pagination = usePagination<Contract>({
     data: contracts,
@@ -26,7 +48,8 @@ const Contracts: React.FC = () => {
 
   useEffect(() => {
     import("../../services/api").then(({ default: api }) => {
-      api.get("/contract")
+      api
+        .get("/contract")
         .then((res) => {
           setContracts(res.data.contracts || []);
           setLoading(false);
@@ -44,19 +67,46 @@ const Contracts: React.FC = () => {
 
   const handleDownloadContract = (contract: Contract) => {
     console.log("Download contract:", contract.id);
-    // Handle contract download
+    // Handle contract download here
   };
 
   return (
     <div className="space-y-6">
+      {/* Render cartItems (wishlist added items) */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <h2 className="text-xl font-semibold mb-4">Your Cart Items</h2>
+        {cartItems.length === 0 ? (
+          <p>No items in your cart yet.</p>
+        ) : (
+          <ul className="space-y-4">
+            {cartItems.map(({ id, name, description, imageUrl, price }) => (
+              <li
+                key={id}
+                className="flex items-center gap-4 border border-gray-200 rounded p-4"
+              >
+                <img
+                  src={imageUrl || "https://via.placeholder.com/80?text=No+Image"}
+                  alt={name}
+                  className="w-20 h-20 object-cover rounded"
+                />
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold">{name}</h3>
+                  <p className="text-gray-700">{description}</p>
+                  {price && (
+                    <p className="text-green-700 font-semibold">{price}</p>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      {/* Your existing Contracts table */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         <div className="p-6 border-b">
-          <h2 className="text-xl font-semibold text-gray-900">
-            Rental Contracts
-          </h2>
-          <p className="text-gray-600 mt-1">
-            View and manage your rental agreements
-          </p>
+          <h2 className="text-xl font-semibold text-gray-900">Rental Contracts</h2>
+          <p className="text-gray-600 mt-1">View and manage your rental agreements</p>
         </div>
 
         <div className="overflow-x-auto">
@@ -89,14 +139,10 @@ const Contracts: React.FC = () => {
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <FileText className="h-5 w-5 text-gray-400" />
-                      <span className="font-medium text-gray-900">
-                        {contract.id}
-                      </span>
+                      <span className="font-medium text-gray-900">{contract.id}</span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
-                    {contract.rentalId}
-                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-600">{contract.rentalId}</td>
                   <td className="px-6 py-4">
                     <span
                       className={`inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full font-medium ${
@@ -107,31 +153,19 @@ const Contracts: React.FC = () => {
                           : "bg-yellow-100 text-yellow-800"
                       }`}
                     >
-                      {contract.status === "Active" && (
-                        <CheckCircle className="h-3 w-3" />
-                      )}
-                      {contract.status === "Completed" && (
-                        <CheckCircle className="h-3 w-3" />
-                      )}
-                      {contract.status === "Pending" && (
-                        <Clock className="h-3 w-3" />
-                      )}
+                      {contract.status === "Active" && <CheckCircle className="h-3 w-3" />}
+                      {contract.status === "Completed" && <CheckCircle className="h-3 w-3" />}
+                      {contract.status === "Pending" && <Clock className="h-3 w-3" />}
                       {contract.status}
                     </span>
                   </td>
                   <td className="px-6 py-4">
                     <div>
-                      <div className="font-medium text-gray-900">
-                        {contract.totalAmount}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        Deposit: {contract.deposit}
-                      </div>
+                      <div className="font-medium text-gray-900">{contract.totalAmount}</div>
+                      <div className="text-sm text-gray-500">Deposit: {contract.deposit}</div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
-                    {contract.signedDate}
-                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-600">{contract.signedDate}</td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
                       <button
@@ -173,9 +207,7 @@ const Contracts: React.FC = () => {
           <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto">
             <div className="p-6 border-b">
               <div className="flex items-center justify-between">
-                <h3 className="text-xl font-semibold text-gray-900">
-                  Contract Details
-                </h3>
+                <h3 className="text-xl font-semibold text-gray-900">Contract Details</h3>
                 <button
                   onClick={() => setSelectedContract(null)}
                   className="text-gray-400 hover:text-gray-600"
@@ -188,72 +220,43 @@ const Contracts: React.FC = () => {
             <div className="p-6 space-y-6">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-500">
-                    Contract ID
-                  </label>
+                  <label className="text-sm font-medium text-gray-500">Contract ID</label>
                   <div className="text-gray-900">{selectedContract.id}</div>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">
-                    Rental ID
-                  </label>
-                  <div className="text-gray-900">
-                    {selectedContract.rentalId}
-                  </div>
+                  <label className="text-sm font-medium text-gray-500">Rental ID</label>
+                  <div className="text-gray-900">{selectedContract.rentalId}</div>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">
-                    Status
-                  </label>
+                  <label className="text-sm font-medium text-gray-500">Status</label>
                   <div className="text-gray-900">{selectedContract.status}</div>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">
-                    Signed Date
-                  </label>
-                  <div className="text-gray-900">
-                    {selectedContract.signedDate}
-                  </div>
+                  <label className="text-sm font-medium text-gray-500">Signed Date</label>
+                  <div className="text-gray-900">{selectedContract.signedDate}</div>
                 </div>
               </div>
 
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-500">
-                    Total Amount
-                  </label>
-                  <div className="text-lg font-semibold text-gray-900">
-                    {selectedContract.totalAmount}
-                  </div>
+                  <label className="text-sm font-medium text-gray-500">Total Amount</label>
+                  <div className="text-lg font-semibold text-gray-900">{selectedContract.totalAmount}</div>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">
-                    Deposit
-                  </label>
-                  <div className="text-lg font-semibold text-gray-900">
-                    {selectedContract.deposit}
-                  </div>
+                  <label className="text-sm font-medium text-gray-500">Deposit</label>
+                  <div className="text-lg font-semibold text-gray-900">{selectedContract.deposit}</div>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">
-                    Insurance
-                  </label>
-                  <div className="text-lg font-semibold text-gray-900">
-                    {selectedContract.insurance}
-                  </div>
+                  <label className="text-sm font-medium text-gray-500">Insurance</label>
+                  <div className="text-lg font-semibold text-gray-900">{selectedContract.insurance}</div>
                 </div>
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-500 mb-2 block">
-                  Terms & Conditions
-                </label>
+                <label className="text-sm font-medium text-gray-500 mb-2 block">Terms & Conditions</label>
                 <ul className="space-y-2">
                   {selectedContract.terms.map((term, index) => (
-                    <li
-                      key={index}
-                      className="flex items-start gap-2 text-sm text-gray-700"
-                    >
+                    <li key={index} className="flex items-start gap-2 text-sm text-gray-700">
                       <span className="text-blue-600 mt-1">•</span>
                       <span>{term}</span>
                     </li>
@@ -262,12 +265,8 @@ const Contracts: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-500">
-                  Cancellation Policy
-                </label>
-                <div className="text-gray-900">
-                  {selectedContract.cancellationPolicy}
-                </div>
+                <label className="text-sm font-medium text-gray-500">Cancellation Policy</label>
+                <div className="text-gray-900">{selectedContract.cancellationPolicy}</div>
               </div>
 
               <div className="flex gap-3 pt-4 border-t">
