@@ -84,7 +84,7 @@ const Payments: React.FC = () => {
       invoiceId: invoiceId || `inv__${Math.floor(Math.random() * 1000)}`,
       rentalId: `rent__${Math.floor(Math.random() * 1000)}`,
       type: "rental",
-      amount: `$₹{(Math.round((50 + Math.random() * 300) * 100) / 100).toFixed(
+      amount: `$${(Math.round((50 + Math.random() * 300) * 100) / 100).toFixed(
         2
       )}`,
       method: "demo_card",
