@@ -19,7 +19,6 @@ const Payments: React.FC = () => {
   const [error, setError] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
 
-  // Load from API, but fall back to localStorage demo payments if fetch fails
   useEffect(() => {
     let mounted = true;
     fetch("/api/payment", { credentials: "include" })
@@ -29,13 +28,11 @@ const Payments: React.FC = () => {
       })
       .then((data) => {
         if (!mounted) return;
-        // Expecting either an object with payments or an array
         const apiPayments: Payment[] = data?.payments ?? data ?? [];
         setPayments(apiPayments);
         setLoading(false);
       })
       .catch(() => {
-        // fallback: load demo payments from localStorage or seed one
         const stored = localStorage.getItem(DEMO_STORAGE_KEY);
         if (stored) {
           setPayments(JSON.parse(stored));
@@ -63,7 +60,6 @@ const Payments: React.FC = () => {
     };
   }, []);
 
-  // Helper to save demo payments to localStorage
   const persistDemoPayments = (arr: Payment[]) => {
     try {
       localStorage.setItem(DEMO_STORAGE_KEY, JSON.stringify(arr));
@@ -82,7 +78,6 @@ const Payments: React.FC = () => {
     itemsPerPage: 10,
   });
 
-  // --- FRONTEND-ONLY demo payment creation (no backend) ---
   const createFrontendDemoPayment = (invoiceId?: string) => {
     const newPayment: Payment = {
       id: `${Date.now()}`,
@@ -93,7 +88,7 @@ const Payments: React.FC = () => {
         2
       )}`,
       method: "demo_card",
-      status: Math.random() > 0.1 ? "completed" : "pending", // mostly completed
+      status: Math.random() > 0.1 ? "completed" : "pending", 
       date: new Date().toISOString().slice(0, 10),
     } as unknown as Payment;
 
@@ -104,7 +99,6 @@ const Payments: React.FC = () => {
     });
   };
 
-  // Button-handler that optionally prompts for invoice id, then creates demo payment
   const handleSimulatePaymentClick = () => {
     const invoiceId = window.prompt(
       "Enter invoice id for demo payment (optional)",
@@ -113,14 +107,12 @@ const Payments: React.FC = () => {
     createFrontendDemoPayment(invoiceId || undefined);
   };
 
-  // --- EXPORT (CSV) ---
   const exportPaymentsCSV = (toExport: Payment[]) => {
     if (!toExport || toExport.length === 0) {
       alert("No payments to export");
       return;
     }
 
-    // Choose the fields you'd like to export
     const headers = [
       "id",
       "invoiceId",
@@ -133,13 +125,12 @@ const Payments: React.FC = () => {
     ];
 
     const csvRows = [
-      headers.join(","), // header row
+      headers.join(","), 
       ...toExport.map((p) =>
         headers
           .map((h) => {
-            // safe accessor, convert undefined to empty string, escape quotes
             const v = (p as any)[h] ?? "";
-            const s = String(v).replace(/"/g, '""'); // escape quotes
+            const s = String(v).replace(/"/g, '""');
             return `"₹{s}"`;
           })
           .join(",")
@@ -161,7 +152,6 @@ const Payments: React.FC = () => {
   const handleExportClick = () => exportPaymentsCSV(filteredPayments);
 
   const handleDownloadReceipt = (payment: Payment) => {
-    // demo: create a tiny text "receipt" and download it
     const receipt = `Payment Receipt\n\nID: ${payment.id}\nInvoice: ${
       (payment as any).invoiceId ?? ""
     }\nAmount: ${payment.amount}\nMethod: ${payment.method}\nStatus: ${
@@ -189,7 +179,6 @@ const Payments: React.FC = () => {
   };
 
   const getTotalAmount = () => {
-    // allow amount string like "$120.00" or numeric, be defensive
     return filteredPayments.reduce((sum, payment) => {
       const raw = (payment.amount as any) ?? 0;
       const cleaned =

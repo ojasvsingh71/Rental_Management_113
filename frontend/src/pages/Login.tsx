@@ -1,16 +1,56 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
-
+import * as THREE from "three";
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const vantaRef = useRef<HTMLDivElement | null>(null);
+  const vantaEffect = useRef<any>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadVanta = async () => {
+      const VANTA = await import("vanta/dist/vanta.net.min");
+
+      if (isMounted && !vantaEffect.current) {
+        vantaEffect.current = VANTA.default({
+          el: vantaRef.current,
+          THREE: THREE,
+          mouseControls: true,
+          touchControls: true,
+          gyroControls: true,
+          minHeight: 200.0,
+          minWidth: 200.0,
+          scale: 1.0,
+          scaleMobile: 1.0,
+          color: 0xfff5,
+          backgroundColor: 0x0,
+          points: 20.0,
+          maxDistance: 10.0,
+          spacing: 20.0,
+        });
+      }
+    };
+
+    loadVanta();
+
+    return () => {
+      isMounted = false;
+      if (vantaEffect.current) {
+        vantaEffect.current.destroy();
+      }
+    };
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,8 +73,11 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 px-4">
-      <div className="bg-white/10 backdrop-blur-lg border border-white/20 p-6 md:p-8 rounded-2xl w-full max-w-md shadow-xl">
+    <div
+      ref={vantaRef}
+      className="flex justify-center items-center min-h-screen relative"
+    >
+      <div className=" backdrop-blur-lg border border-white/20 p-6 md:p-8 rounded-2xl w-full max-w-md shadow-xl relative z-10">
         <div className="flex justify-between mb-6">
           <h1 className="text-lg md:text-xl font-semibold text-white tracking-wide">
             Rental Management

@@ -20,21 +20,21 @@ const Wishlist: React.FC<WishlistProps> = ({ onAddToCart }) => {
       name: "Cordless Drill",
       description: "Powerful and compact drill with 20V battery",
       imageUrl: "https://via.placeholder.com/120?text=Drill",
-      price: "$129.99",
+      price: "₹129.99",
     },
     {
       id: 2,
       name: "Mountain Bike",
       description: "Lightweight aluminum frame, 21-speed gears",
       imageUrl: "https://via.placeholder.com/120?text=Bike",
-      price: "$899.00",
+      price: "₹899.00",
     },
     {
       id: 3,
       name: "Camping Tent",
       description: "4-person waterproof tent with quick setup",
       imageUrl: "https://via.placeholder.com/120?text=Tent",
-      price: "$199.50",
+      price: "₹199.50",
     },
   ]);
 
