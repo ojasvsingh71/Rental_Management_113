@@ -6,6 +6,15 @@ Includes a friendly AI assistant **SewaSaathi** and a YOLO-style **Damage Detect
 
 ----------
 
+## 📷 SnapShots
+
+<img width="1919" height="868" alt="Screenshot 2025-08-12 091625" src="https://github.com/user-attachments/assets/1061d903-c69f-425f-a78f-359778cd04ca" />
+
+<img width="1919" height="867" alt="Screenshot 2025-08-12 091715" src="https://github.com/user-attachments/assets/e1f1de25-f19e-4b8f-9803-9a14e0c01342" />
+
+<img width="1919" height="864" alt="Screenshot 2025-08-12 091741" src="https://github.com/user-attachments/assets/c34c00d0-8578-4c50-b02e-734f4a091505" />
+
+
 ## 🚀 Quick Start
 
 ### Prerequisites
