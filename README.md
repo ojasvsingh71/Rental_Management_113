@@ -1,336 +1,398 @@
-📦 AI-Powered Sustainable Rental Platform
-A next-generation role-based rental management system designed to streamline operations, detect rental damages using AI, and promote eco-friendly usage through sustainability dashboards.
-Built for Customers, End Users, and Admins, it addresses industry challenges like fraud prevention, inventory management, dynamic pricing, and seasonal demand control—critical issues in tourist-heavy and high-traffic rental markets.
+
+# 📦 AI-Powered Sustainable Rental Platform — RentFlow
+
+A next-generation role-based rental management system built to streamline operations, detect rental damages using AI, and promote eco-friendly usage through sustainability dashboards.  
+Includes a friendly AI assistant **SewaSaathi** and a YOLO-style **Damage Detector** for automated condition checks.
+
+----------
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js (v18 or higher)
-- PostgreSQL database
-- Redis (for OTP functionality)
-- Python 3.8+ (for AI damage detection)
 
-### Installation
+-   Node.js (v18+)
+    
+-   PostgreSQL
+    
+-   Redis (optional: OTP/session)
+    
+-   Python 3.8+ (for AI Damage Detector)
+    
+-   (Optional) GPU for faster AI inference
+    
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd rental-management-system
-   ```
+### Install & Run (summary)
 
-2. **Install all dependencies**
-   ```bash
-   npm run install:all
-   ```
 
-3. **Setup environment variables**
-   ```bash
-   # Backend
-   cp backend/.env.example backend/.env
-   # Edit backend/.env with your database and other configurations
-   
-   # Frontend
-   cp frontend/.env.example frontend/.env
-   # Edit frontend/.env with your API URLs
-   ```
 
-4. **Setup database**
-   ```bash
-   cd backend
-   npx prisma generate
-   npx prisma db push
-   # Optional: seed database
-   npm run seed
-   ```
+```
+git clone <repo-url>
+cd rental-management-system
 
-5. **Start all services**
-   ```bash
-   npm run dev
-   ```
+# Install everything (root task runner)
+npm run install:all
 
-This will start:
-- Backend API server on http://localhost:5000
-- Frontend React app on http://localhost:5173
-- AI Chat service on http://localhost:2003
-- AI Damage Detection on http://localhost:8000 (if Python dependencies are installed)
-
-### Individual Service Commands
-
-```bash
-# Backend only
+# Backend
+cd backend
+cp .env.example .env
+# edit backend/.env
+npx prisma generate
+npx prisma db push
+npm run seed # optional
 npm run dev:backend
 
-# Frontend only
+# Frontend
+cd ../frontend
+cp .env.example .env
+# edit frontend/.env (e.g. NEXT_PUBLIC_API_URL)
 npm run dev:frontend
 
-# AI Chat only
+# AI Chat
+cd ../SewaSaathi
+# follow python/npm instructions in /SewaSaathi
 npm run dev:ai-chat
+
+# Damage Detector (python service)
+cd ../AI
+# create venv, install requirements then:
+python app.py  # or uvicorn app:app --reload --port 8000
+
+``` 
+
+Default hosts used in the repo:
+
+-   Backend API: `http://localhost:5000`
+    
+-   Frontend: `http://localhost:5173`
+    
+-   AI Chat (SewaSaathi): `http://localhost:2003`
+    
+-   AI Damage Detector: `http://localhost:8000`
+    
+
+----------
+
+## 🔍 Focused Overview: SewaSaathi (AI Chatbot)
+
+**SewaSaathi** is the user-facing conversational assistant that helps customers:
+
+-   discover products,
+    
+-   ask pricing/availability,
+    
+-   get booking help,
+    
+-   report damage & escalate to staff,
+    
+-   receive sustainability tips.
+    
+
+### Architecture
+
+-   Node/Express or Python microservice that interfaces with OpenAI (or your LLM of choice).
+    
+-   Maintains short-term context per-session and integrates with backend via APIs (product, rentals, invoices).
+    
+-   Optionally uses vector DB (e.g. Pinecone, Redis) for knowledge retrieval from docs/manuals or product descriptions.
+    
+
+### Key Features
+
+-   Natural language product search (intent parsing).
+    
+-   Guided booking flows (collect dates, product, quantity).
+    
+-   Damage reporting assistant that can request images and call the Damage Detector endpoint.
+    
+-   Admin mode for staff: `/api/sewasaathi/admin` to retrieve transcripts & recommended actions.
+    
+
+### How to run
+
+1.  `cd SewaSaathi`
+    
+2.  `cp .env.example .env` and set `OPENAI_API_KEY`, `API_URL`, etc.
+    
+3.  `npm install` (or `pip install -r requirements.txt` if Python)
+    
+4.  `npm run dev` (or `uvicorn sewasaathi:app --reload --port 2003`)
+    
+
+### API (example)
+
+-   `POST /chat` — send user message, returns bot reply and optional action suggestions.
+    
+
+    
+ ```
+   // Request
+{
+  "sessionId": "sess_123",
+  "message": "I want to rent a projector next weekend"
+}
+
+// Response
+{
+  "reply": "Great — how many days do you need it?",
+  "suggestedActions": ["GetAvailability:projector", "CreateQuote"]
+}
+``` 
+    
+
+### Frontend integration (quick)
+
+Use fetch or your `api.ts` service. Example (React):
+
+
 ```
+const res = await fetch(`${CHAT_URL}/chat`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ sessionId, message }),
+});
+const data = await res.json();
+``` 
 
-## 📱 Application Structure
+If you need streaming for low-latency replies, use a websocket endpoint (`/ws/chat`) or SSE.
 
-### Backend (`/backend`)
-- **Framework**: Express.js with Prisma ORM
-- **Database**: PostgreSQL
-- **Authentication**: JWT with Redis for OTP
-- **API**: RESTful API with role-based access control
+----------
 
-### Frontend (`/frontend`)
-- **Framework**: React 18 with TypeScript
-- **Styling**: Tailwind CSS
-- **State Management**: React Context + Custom Hooks
-- **Routing**: React Router v6
-- **UI Components**: Custom responsive components
+## 🛠️ Focused Overview: AI Damage Detector
 
-### AI Services
-- **Chat Bot** (`/SewaSaathi`): OpenAI-powered rental assistant
-- **Damage Detection** (`/AI`): YOLO-based image analysis for damage detection
+The Damage Detector is a Python-based service (YOLO / Detectron / custom model) that analyses uploaded images and returns:
 
-## 🔐 Authentication & Roles
+-   bounding boxes for damaged regions,
+    
+-   damage classification (scratch, dent, crack),
+    
+-   confidence scores,
+    
+-   suggested repair cost range.
+    
 
-The system supports multiple user roles:
+### Architecture
 
-1. **ADMIN**: Full system access, manage all resources
-2. **CUSTOMER**: Browse products, create rentals, manage bookings
-3. **END_USER**: Access to active rentals, usage guidelines, support
-4. **STAFF**: Manage deliveries, pickups, and returns
+-   FastAPI (or Flask) serving inference endpoints.
+    
+-   Model: YOLOv8/YOLOv5 or similar (or custom model trained on labeled damage images).
+    
+-   Optional: Redis or DB to store reports and link them with rentals/invoices.
+    
+-   Optional background job runner (Celery/RQ) for heavy processing.
+    
 
-## 📊 Key Features Implemented
+### How to run
 
-### ✅ Completed Features
-- [x] Multi-role authentication system
-- [x] Responsive design for all screen sizes
-- [x] Product management with categories and pricing
-- [x] Rental booking and management system
-- [x] Real-time dashboard with statistics
-- [x] AI-powered chatbot integration
-- [x] Damage detection using computer vision
-- [x] Payment tracking and invoicing
-- [x] Notification system
-- [x] Calendar integration for scheduling
-- [x] Sustainability tracking and reporting
+1.  `cd AI`
+    
+2.  Create venv and install:
+    
+    
+    ```
+    python -m venv .venv 
+    source .venv/bin/activate
+    pip install -r requirements.txt
+    ``` 
+    
+3.  Ensure model weights exist (instructions in `/AI/README.md` if present).
+    
+4.  Start server:
 
-### 🚧 In Progress
-- [ ] Email notifications and OTP verification
-- [ ] Advanced reporting and analytics
-- [ ] Mobile app development
-- [ ] Integration with payment gateways
-- [ ] Advanced AI damage assessment
+    
+    `uvicorn app:app --reload --port 8000` 
+    
 
-## 🛠️ API Endpoints
+### Endpoints & Example Requests
 
-### Authentication
-- `POST /api/auth/signup` - User registration
-- `POST /api/auth/signin` - User login
-- `GET /api/auth/me` - Get current user
-- `POST /api/auth/generate-otp` - Generate OTP for verification
-- `POST /api/auth/verify-otp` - Verify OTP
+**POST `/api/ai/detect`** — upload a single image for detection
 
-### Products
-- `GET /api/product` - Get all products
-- `POST /api/product` - Create product (Admin)
-- `PUT /api/product/:id` - Update product (Admin)
-- `DELETE /api/product/:id` - Delete product (Admin)
+-   Content: `multipart/form-data` with field `image`, and optional `rentalId`, `productId`.
+    
+-   Response:
 
-### Rentals
-- `GET /api/rental` - Get all rentals (Admin)
-- `GET /api/rental/my` - Get user's rentals
-- `POST /api/rental` - Create rental
-- `PUT /api/rental/:id/status` - Update rental status
 
-### Dashboard
-- `GET /api/admin/dashboard` - Get dashboard statistics
-
-## 🎨 UI/UX Features
-
-### Responsive Design
-- Mobile-first approach with breakpoints for all screen sizes
-- Collapsible sidebar navigation for mobile devices
-- Adaptive layouts for tables and cards
-- Touch-friendly interface elements
-
-### Accessibility
-- Semantic HTML structure
-- Keyboard navigation support
-- Screen reader compatible
-- High contrast color schemes
-- Loading states and error handling
-
-### User Experience
-- Smooth animations and transitions
-- Real-time data updates
-- Intuitive navigation patterns
-- Consistent design language
-- Progressive loading with skeletons
-
-## 🔧 Development
-
-### Code Structure
 ```
-├── backend/                 # Express.js API server
-│   ├── src/
-│   │   ├── routes/         # API route handlers
-│   │   ├── middlewares/    # Authentication & validation
-│   │   └── validate/       # Zod validation schemas
-│   └── prisma/             # Database schema & migrations
-├── frontend/               # React TypeScript app
-│   ├── src/
-│   │   ├── components/     # Reusable UI components
-│   │   ├── pages/          # Page components
-│   │   ├── hooks/          # Custom React hooks
-│   │   ├── services/       # API integration
-│   │   └── contexts/       # React contexts
-├── SewaSaathi/            # AI Chat service
-└── AI/                    # Damage detection service
+{
+  "imageId": "img_001",
+  "detections": [
+    { "label": "scratch", "bbox": [x,y,w,h], "confidence": 0.93, "area_ratio": 0.04 },
+    { "label": "dent",    "bbox": [x,y,w,h], "confidence": 0.82, "area_ratio": 0.02 }
+  ],
+  "summary": {
+    "damageCount": 2,
+    "estimatedRepairCost": 45.0,
+    "severity": "minor"
+  }
+}
+``` 
+
+**POST `/api/ai/compare`** — compare pre-rental and post-rental images
+
+-   Body: JSON referencing two image IDs or two uploaded images
+    
+-   Response: returns differences and highlights only _new_ damage.
+    
+
+### Model & Training (short)
+
+-   Use curated dataset with labels: `scratch`, `dent`, `crack`, `broken`.
+    
+-   Augment with brightness/rotation; train with transfer learning.
+    
+-   Provide thresholds for `confidence` and `area_ratio` to decide actionable damages.
+    
+-   Retraining: provide labeled corrections from staff UI; scheduled retrain CI job.
+    
+
+### Frontend integration example (React)
+
+Upload image and show results:
+
+
 ```
+const form = new FormData();
+form.append('image', file);
+form.append('rentalId', rentalId);
 
-### Contributing
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+const res = await fetch(`${API_BASE}/ai/detect`, {
+  method: 'POST',
+  body: form
+});
+const json = await res.json();
+// display boxes over image using bbox coordinates
 
-## 📞 Support
+``` 
 
-For support and questions:
-- Create an issue in the repository
-- Contact the development team
-- Check the documentation in `/docs`
+----------
 
-🚀 Feature Overview by Role
-1. Customer Portal (Person Renting the Product)
-🔍 Smart Product Discovery
-Browse products with HD images, pricing tiers, and eco-scores.
+## 🔗 How SewaSaathi + Damage Detector Work Together
 
-Advanced filters: category, availability, duration, and price range.
+1.  Customer chats with **SewaSaathi** and wants to report damage.
+    
+2.  Chatbot asks for required photos and calls `/api/ai/detect`.
+    
+3.  Detector returns structured results. SewaSaathi:
+    
+    -   Formats results into a readable message,
+        
+    -   Suggests next steps (keep, charge deposit, schedule inspection),
+        
+    -   Optionally creates an incident in backend (`/api/notification`, `/api/invoice` for deduction).
+        
+4.  Admins see detected damage in the Admin UI with the original image, boxes, severity, and suggested cost.
+    
 
-Sustainability insights: “You saved X kg CO₂ by renting instead of buying.”
+----------
 
-📄 Rich Product Details
-Transparent pricing by hour/day/week/month.
+## ✅ Suggested End-to-End Demo Flow (for product demos)
 
-Real-time availability calendar.
+1.  Seed backend with a rental and invoice.
+    
+2.  Log in as customer, go to `My Rentals`.
+    
+3.  Use SewaSaathi to ask: "I returned the projector — I think it's scratched."
+    
+4.  Upload pre/post images when prompted.
+    
+5.  SewaSaathi calls AI detector and returns results; Payment/invoice updated automatically (or flagged for admin review).
+    
 
-Product-specific eco-score display.
+----------
 
-🛒 Seamless Booking Flow
-Customizable rental duration (start/end date & time).
+## 🔐 Data & Privacy Considerations
 
-Delivery and pickup preferences.
+-   Store images securely (S3 or similar) and encrypt in transit (HTTPS) and at rest.
+    
+-   Only keep images and analysis as long as required for legal/compliance needs.
+    
+-   Allow customers to request deletion of images and data (GDPR/CCPA).
+    
+-   Log only anonymized model inference results for retraining.
+    
 
-Live cost calculation with deposits, discounts, and promotions.
+----------
 
-💳 Secure Payments
-Multi-gateway support: PayPal, Stripe, Razorpay.
+## 🧪 Testing & Local Development Tips
 
-Flexible payments: full or partial deposit.
+-   Add a `/mock` flag or an environment variable to bypass the real model and return deterministic responses for frontend dev.
+    
+-   Provide a simple `mock_responses/` folder with JSON files and a small express route `/api/ai/mock-detect` that returns them — great for UI dev without GPU.
+    
 
-📑 Quotations & Orders
-Instant rental quotations.
+----------
 
-Convert quotation to confirmed rental order.
+## 📦 DevOps & Production Notes
 
-Digital rental contract & invoice download.
+-   Serve AI model behind a GPU-enabled machine or use a managed inference service.
+    
+-   Use load balancing and autoscaling for the chat and detection services.
+    
+-   Add monitoring: Prometheus/Grafana for latency and error rates.
+    
+-   Use a queue for heavy requests, show user a progress spinner while processing.
+    
 
-📷 AI-Powered Condition Scans
-Pre-rental upload: AI detects and documents existing damages.
+----------
 
-Post-rental upload: AI compares with pre-rental scans to highlight new damage.
+## 🧾 API Summary (new AI / Chat endpoints)
 
-Automated pre/post rental condition reports stored for compliance.
+-   `POST /api/chat` — send message to SewaSaathi
+    
+-   `WS /ws/chat` — optional websocket for streaming replies
+    
+-   `POST /api/ai/detect` — single image damage detection
+    
+-   `POST /api/ai/compare` — compare two images for new damage
+    
 
-🔔 Intelligent Notifications
-Pickup/return reminders.
+----------
 
-Late return alerts with penalty estimation.
+## 📌 Example Dummy Data (for demos)
 
-🌱 Sustainability Dashboard (Customer View)
-Cumulative CO₂ savings.
+**Payments / Invoices**
 
-Per-rental environmental impact breakdown.
 
-👤 Profile & Preferences
-Manage profile, addresses, and payment methods.
+```
+{
+  "invoices": [
+    { "id": "inv_1001", "rentalId": "rent_01", "totalAmount": 120.0, "status": "PENDING" }
+  ],
+  "payments": [
+    { "id": "pay_001", "invoiceId": "inv_1001", "rentalId": "rent_01", "amount": "$120.00", "method": "demo_card", "status": "completed", "date": "2025-08-12" }
+  ]
+}
+``` 
 
-2. End User Portal (Person Using the Product)
-🚚 Delivery & Return Scheduling
-Real-time delivery/pickup date & time tracking.
+**AI detection mock**
 
-📖 Usage Guidelines
-Digital manuals, safety precautions, and best practices.
 
-🔔 Reminders
-Return alerts sent N days in advance.
+```
+{
+  "imageId": "img_demo_01",
+  "detections": [
+    { "label": "scratch", "bbox": [120, 40, 200, 70], "confidence": 0.95 }
+  ],
+  "summary": { "damageCount": 1, "estimatedRepairCost": 30, "severity": "minor" }
+}
+``` 
 
-📷 Damage Reporting
-Optional AI-assisted damage reporting.
+----------
 
-🌱 Eco Tips
-Sustainable usage suggestions to reduce environmental footprint.
+## 🛠️ Next Steps & Roadmap (short)
 
-3. Admin / Back-Office Portal (Business Owner / Staff)
-📦 Inventory & Product Management
-Add, edit, or remove products.
+-   🔁 Add webhook flows: AI triggers invoice updates automatically.
+    
+-   🤖 Improve SewaSaathi with RAG (retrieval-augmented generation) for manuals & TOS.
+    
+-   📦 Provide Docker compose/dev scripts that start frontend, backend, AI detector, and mock services together.
+    
 
-Set eco-scores and pricing tiers by duration.
+----------
 
-Mark availability for maintenance or downtime.
+## 📞 Support / Contributing
 
-📅 Availability & Order Management
-Visual availability calendar.
-
-Create/manage rental orders and contracts.
-
-🚚 Logistics & Delivery Tracking
-Manage reservations from pickup → return.
-
-Assign staff and track vehicle routes.
-
-🤖 AI Damage Detection
-View AI-generated pre/post rental reports.
-
-Highlight damaged areas visually.
-
-Approve or adjust automated repair cost estimates.
-
-Trigger deposit deduction workflows.
-
-💰 Billing & Payments
-Generate full/partial invoices.
-
-Auto-apply late return penalties.
-
-📊 Analytics & Insights
-Track top rented items, revenue, and customer rankings.
-
-Export reports in PDF, Excel, CSV.
-
-🌱 Sustainability Dashboard (Admin View)
-Total CO₂ savings across all rentals.
-
-Category-wise eco-impact.
-
-Branded sustainability reports for marketing use.
-
-🌟 AI & Sustainability Innovations
-AI Condition Analysis
-Pre-Rental: Document and timestamp product condition.
-
-Post-Rental: Automated comparison detects new damage.
-
-Seamless damage fee calculation and deposit adjustments.
-
-Eco Impact Tracking
-Individual customer and global company CO₂ savings metrics.
-
-Product-level sustainability scoring to influence rental decisions.
-
-🎯 Business Value Proposition
-Fraud Prevention: AI detects and records damage with photographic proof.
-
-Sustainability Differentiator: Eco-score marketing boosts brand image.
-
-Revenue Optimization: Dynamic pricing for seasonal demand control.
-
-Operational Efficiency: Unified platform for booking, billing, and logistics.
+-   Open an issue in the repo for bugs/feature requests.
+    
+-   See `/docs` for architecture diagrams and AI training notes.
+    
+-   PRs welcome — follow the contribution steps in the original README.
