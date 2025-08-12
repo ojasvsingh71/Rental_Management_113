@@ -20,6 +20,7 @@ app.use(cors({
     'http://127.0.0.1:3000'
   ],
   credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
 // Add request logging middleware
