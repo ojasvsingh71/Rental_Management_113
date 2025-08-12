@@ -8,16 +8,17 @@ const Calendar: React.FC = () => {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch("/api/event", { credentials: "include" })
-      .then((res) => res.json())
-      .then((data) => {
-        setEvents(data.events || []);
-        setLoading(false);
-      })
-      .catch(() => {
-        setError("Failed to load calendar events");
-        setLoading(false);
-      });
+    import("../../services/api").then(({ default: api }) => {
+      api.get("/event")
+        .then((res) => {
+          setEvents(res.data.events || []);
+          setLoading(false);
+        })
+        .catch(() => {
+          setError("Failed to load calendar events");
+          setLoading(false);
+        });
+    });
   }, []);
 
   const handleEventClick = (event: CalendarEvent) => {

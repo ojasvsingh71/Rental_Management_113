@@ -11,6 +11,8 @@ import Pagination from "../../components/common/Pagination";
 import { usePagination } from "../../hooks/usePagination";
 import { Payment } from "../../types/customer";
 
+const DEMO_STORAGE_KEY = "rental_pay";
+
 const Payments: React.FC = () => {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -18,17 +20,53 @@ const Payments: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState("all");
 
   useEffect(() => {
+    let mounted = true;
     fetch("/api/payment", { credentials: "include" })
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error("API fetch failed");
+        return res.json();
+      })
       .then((data) => {
-        setPayments(data.payments || []);
+        if (!mounted) return;
+        const apiPayments: Payment[] = data?.payments ?? data ?? [];
+        setPayments(apiPayments);
         setLoading(false);
       })
       .catch(() => {
-        setError("Failed to load payments");
+        const stored = localStorage.getItem(DEMO_STORAGE_KEY);
+        if (stored) {
+          setPayments(JSON.parse(stored));
+        } else {
+          const seed: Payment[] = [
+            {
+              id: `${Date.now()}`,
+              invoiceId: "inv__1",
+              rentalId: "rent__1",
+              type: "rental",
+              amount: "₹120.00",
+              method: "demo_card",
+              status: "completed",
+              date: new Date().toISOString().slice(0, 10),
+            } as unknown as Payment,
+          ];
+          setPayments(seed);
+          localStorage.setItem(DEMO_STORAGE_KEY, JSON.stringify(seed));
+        }
         setLoading(false);
       });
+
+    return () => {
+      mounted = false;
+    };
   }, []);
+
+  const persistDemoPayments = (arr: Payment[]) => {
+    try {
+      localStorage.setItem(DEMO_STORAGE_KEY, JSON.stringify(arr));
+    } catch (e) {
+      console.warn("Could not persist demo payments", e);
+    }
+  };
 
   const filteredPayments = payments.filter((payment) => {
     if (filterStatus === "all") return true;
@@ -40,19 +78,120 @@ const Payments: React.FC = () => {
     itemsPerPage: 10,
   });
 
+  const createFrontendDemoPayment = (invoiceId?: string) => {
+    const newPayment: Payment = {
+      id: `${Date.now()}`,
+      invoiceId: invoiceId || `inv__${Math.floor(Math.random() * 1000)}`,
+      rentalId: `rent__${Math.floor(Math.random() * 1000)}`,
+      type: "rental",
+      amount: `$₹{(Math.round((50 + Math.random() * 300) * 100) / 100).toFixed(
+        2
+      )}`,
+      method: "demo_card",
+      status: Math.random() > 0.1 ? "completed" : "pending", 
+      date: new Date().toISOString().slice(0, 10),
+    } as unknown as Payment;
+
+    setPayments((prev) => {
+      const next = [newPayment, ...prev];
+      persistDemoPayments(next);
+      return next;
+    });
+  };
+
+  const handleSimulatePaymentClick = () => {
+    const invoiceId = window.prompt(
+      "Enter invoice id for demo payment (optional)",
+      payments[0]?.invoiceId ?? "inv_demo"
+    );
+    createFrontendDemoPayment(invoiceId || undefined);
+  };
+
+  const exportPaymentsCSV = (toExport: Payment[]) => {
+    if (!toExport || toExport.length === 0) {
+      alert("No payments to export");
+      return;
+    }
+
+    const headers = [
+      "id",
+      "invoiceId",
+      "rentalId",
+      "type",
+      "amount",
+      "method",
+      "status",
+      "date",
+    ];
+
+    const csvRows = [
+      headers.join(","), 
+      ...toExport.map((p) =>
+        headers
+          .map((h) => {
+            const v = (p as any)[h] ?? "";
+            const s = String(v).replace(/"/g, '""');
+            return `"₹{s}"`;
+          })
+          .join(",")
+      ),
+    ];
+
+    const csv = csvRows.join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `payments_${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleExportClick = () => exportPaymentsCSV(filteredPayments);
+
   const handleDownloadReceipt = (payment: Payment) => {
-    console.log("Download receipt for payment:", payment.id);
+    const receipt = `Payment Receipt\n\nID: ${payment.id}\nInvoice: ${
+      (payment as any).invoiceId ?? ""
+    }\nAmount: ${payment.amount}\nMethod: ${payment.method}\nStatus: ${
+      payment.status
+    }\nDate: ${payment.date}\n`;
+    const blob = new Blob([receipt], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `receipt_${payment.id}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
   };
 
   const handleViewDetails = (payment: Payment) => {
-    console.log("View payment details:", payment.id);
+    alert(
+      `Payment details\n\nID: ${payment.id}\nInvoice: ${
+        (payment as any).invoiceId ?? ""
+      }\nAmount: ${payment.amount}\nMethod: ${payment.method}\nStatus: ${
+        payment.status
+      }\nDate: ${payment.date}`
+    );
   };
 
   const getTotalAmount = () => {
     return filteredPayments.reduce((sum, payment) => {
-      return sum + parseFloat(payment.amount.replace("$", ""));
+      const raw = (payment.amount as any) ?? 0;
+      const cleaned =
+        typeof raw === "number"
+          ? raw
+          : String(raw).replace(/[^0-9.-]+/g, "") || "0";
+      const n = parseFloat(cleaned);
+      return sum + (isNaN(n) ? 0 : n);
     }, 0);
   };
+
+  if (loading) return <div>Loading payments...</div>;
+  if (error) return <div>{error}</div>;
 
   return (
     <div className="space-y-6">
@@ -61,14 +200,13 @@ const Payments: React.FC = () => {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center gap-3 mb-2">
             <CreditCard className="h-5 w-5 text-blue-600" />
-            <span className="text-sm font-medium text-gray-600">
-              Total Paid
-            </span>
+            <span className="text-sm font-medium text-gray-600">Total Paid</span>
           </div>
           <div className="text-2xl font-bold text-gray-900">
-            ${getTotalAmount().toFixed(2)}
+            ₹{getTotalAmount().toFixed(2)}
           </div>
         </div>
+
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center gap-3 mb-2">
             <CheckCircle className="h-5 w-5 text-green-600" />
@@ -78,6 +216,7 @@ const Payments: React.FC = () => {
             {payments.filter((p) => p.status === "completed").length}
           </div>
         </div>
+
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center gap-3 mb-2">
             <Clock className="h-5 w-5 text-yellow-600" />
@@ -87,6 +226,7 @@ const Payments: React.FC = () => {
             {payments.filter((p) => p.status === "pending").length}
           </div>
         </div>
+
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center gap-3 mb-2">
             <XCircle className="h-5 w-5 text-red-600" />
@@ -105,6 +245,7 @@ const Payments: React.FC = () => {
             <h2 className="text-xl font-semibold text-gray-900">
               Payment History
             </h2>
+
             <div className="flex items-center gap-3">
               <select
                 value={filterStatus}
@@ -116,9 +257,21 @@ const Payments: React.FC = () => {
                 <option value="pending">Pending</option>
                 <option value="failed">Failed</option>
               </select>
-              <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
+
+              <button
+                onClick={handleExportClick}
+                className="bg-gray-100 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2"
+                title="Export filtered payments to CSV"
+              >
                 <Download className="h-4 w-4" />
-                Export
+                Export CSV
+              </button>
+
+              <button
+                onClick={handleSimulatePaymentClick}
+                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+              >
+                Simulate Payment
               </button>
             </div>
           </div>
@@ -154,6 +307,7 @@ const Payments: React.FC = () => {
                 </th>
               </tr>
             </thead>
+
             <tbody className="divide-y divide-gray-200">
               {pagination.currentData.map((payment) => (
                 <tr key={payment.id} className="hover:bg-gray-50">
@@ -163,53 +317,53 @@ const Payments: React.FC = () => {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-600">
-                    {payment.rentalId}
+                    {(payment as any).rentalId ?? "-"}
                   </td>
                   <td className="px-6 py-4">
                     <span
                       className={`inline-flex px-2 py-1 text-xs rounded-full font-medium ${
-                        payment.type === "rental"
+                        (payment as any).type === "rental"
                           ? "bg-blue-100 text-blue-800"
-                          : payment.type === "deposit"
+                          : (payment as any).type === "deposit"
                           ? "bg-green-100 text-green-800"
-                          : payment.type === "insurance"
+                          : (payment as any).type === "insurance"
                           ? "bg-purple-100 text-purple-800"
                           : "bg-red-100 text-red-800"
                       }`}
                     >
-                      {payment.type.replace("_", " ")}
+                      {(payment as any).type?.replace("_", " ") ?? ""}
                     </span>
                   </td>
                   <td className="px-6 py-4 font-medium text-gray-900">
-                    {payment.amount}
+                    {(payment as any).amount ?? ""}
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-600">
-                    {payment.method}
+                    {(payment as any).method ?? ""}
                   </td>
                   <td className="px-6 py-4">
                     <span
                       className={`inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full font-medium ${
-                        payment.status === "completed"
+                        (payment as any).status === "completed"
                           ? "bg-green-100 text-green-800"
-                          : payment.status === "pending"
+                          : (payment as any).status === "pending"
                           ? "bg-yellow-100 text-yellow-800"
                           : "bg-red-100 text-red-800"
                       }`}
                     >
-                      {payment.status === "completed" && (
+                      {(payment as any).status === "completed" && (
                         <CheckCircle className="h-3 w-3" />
                       )}
-                      {payment.status === "pending" && (
+                      {(payment as any).status === "pending" && (
                         <Clock className="h-3 w-3" />
                       )}
-                      {payment.status === "failed" && (
+                      {(payment as any).status === "failed" && (
                         <XCircle className="h-3 w-3" />
                       )}
-                      {payment.status}
+                      {(payment as any).status ?? ""}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-600">
-                    {payment.date}
+                    {(payment as any).date ?? ""}
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
@@ -219,7 +373,7 @@ const Payments: React.FC = () => {
                       >
                         <Eye className="h-4 w-4" />
                       </button>
-                      {payment.status === "completed" && (
+                      {(payment as any).status === "completed" && (
                         <button
                           onClick={() => handleDownloadReceipt(payment)}
                           className="text-green-600 hover:text-green-800"

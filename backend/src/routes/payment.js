@@ -158,4 +158,55 @@ router.delete("/:id", authMiddleware, isAdmin, async (req, res) => {
   }
 });
 
+
+router.post("/checkout/demo", authMiddleware, async (req, res) => {
+  try {
+    const { invoiceId } = req.body;
+
+    if (!invoiceId) {
+      return res.status(400).json({ error: "Invoice ID is required" });
+    }
+
+    const invoice = await prisma.invoice.findUnique({
+      where: { id: invoiceId },
+      include: { customer: true }
+    });
+
+    if (!invoice) {
+      return res.status(404).json({ error: "Invoice not found" });
+    }
+
+    if (req.user.role !== "admin" && invoice.customer.userId !== req.user.id) {
+      return res.status(403).json({ error: "Not allowed to pay this invoice" });
+    }
+
+    // Create the demo payment
+    const payment = await prisma.payment.create({
+      data: {
+        invoiceId,
+        amount: invoice.totalAmount || 100,
+        method: "demo_card",
+        transactionId: `demo-${Date.now()}`,
+        status: "completed"
+      }
+    });
+
+    // Update invoice status to 'paid'
+    await prisma.invoice.update({
+      where: { id: invoiceId },
+      data: { status: "paid" }
+    });
+
+    res.json({
+      message: "Demo payment successful and invoice marked as paid",
+      payment
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Something went wrong" });
+  }
+});
+
+
 export default router;

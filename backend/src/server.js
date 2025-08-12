@@ -20,6 +20,7 @@ app.use(cors({
     'http://127.0.0.1:3000'
   ],
   credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
 // Add request logging middleware
@@ -46,6 +47,8 @@ import rentalRoutes from "./routes/rental.js";
 import rentalReturnRoutes from "./routes/rentalReturn.js";
 import reportRoutes from "./routes/report.js";
 import searchRoutes from "./routes/search.js";
+import eventRoutes from "./routes/event.js";
+import contractRoutes from "./routes/contract.js";
 
 app.use("/api/admin", adminRoutes);
 app.use("/api/auth", authRoutes);
@@ -63,6 +66,8 @@ app.use("/api/rental", rentalRoutes);
 app.use("/api/rental-return", rentalReturnRoutes);
 app.use("/api/report", reportRoutes);
 app.use("/api/search", searchRoutes);
+app.use("/api/event", eventRoutes);
+app.use("/api/contract", contractRoutes);
 
 // ----------------------
 // CRON JOBS
