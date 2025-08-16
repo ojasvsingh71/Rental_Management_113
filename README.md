@@ -14,6 +14,9 @@ Includes a friendly AI assistant **SewaSaathi** and a YOLO-style **Damage Detect
 
 <img width="1919" height="864" alt="Screenshot 2025-08-12 091741" src="https://github.com/user-attachments/assets/c34c00d0-8578-4c50-b02e-734f4a091505" />
 
+![WhatsApp Image 2025-08-16 at 12 27 06 PM](https://github.com/user-attachments/assets/09edf965-9fa3-4e58-abee-1d4847cd2b44)
+
+
 
 ## 🚀 Quick Start
 
